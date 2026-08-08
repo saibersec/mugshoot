@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mugshot Perpisahan Sekolah</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background-color: #1a1a1a;
+      color: #f0f0f0;
+      padding: 20px;
+    }
+
+    /* =========================================
+       HALAMAN LOGIN / KATA SANDI
+       ========================================= */
+    #loginScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .login-box {
+      background: #222;
+      padding: 40px;
+      border: 2px solid #ff4757;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .login-box h2 {
+      color: #ff4757;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    .login-box p {
+      color: #aaa;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #555;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 5px;
+      outline: none;
+      text-align: center;
+    }
+
+    .login-box input:focus {
+      border-color: #ff4757;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background: #ff4757;
+      color: #fff;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .login-box button:hover {
+      background: #e84150;
+    }
+
+    #errorMessage {
+      color: #ff4757;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      height: 15px;
+    }
+
+    /* =========================================
+       HALAMAN UTAMA (Disembunyikan di awal)
+       ========================================= */
+    #mainApp {
+      display: none; /* Disembunyikan sampai sandi benar */
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      color: #ff4757;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    header p {
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    /* Search Bar */
+    .search-container {
+      max-width: 500px;
+      margin: 0 auto 30px auto;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: 2px solid #ff4757;
+      border-radius: 25px;
+      background-color: #2b2b2b;
+      color: #fff;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .search-container input:focus {
+      box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+    }
+
+    /* Grid Layout Card */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Style Card Tanpa Foto */
+    .card {
+      background-color: #2b2b2b;
+      border: 2px solid #444;
+      border-top: 5px solid #ff4757;
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: #ff4757;
+    }
+
+    .card::after {
+      content: "KLIK UNTUK DATA KELUARGA";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 71, 87, 0.9);
+      color: #fff;
+      font-size: 0.7rem;
+      text-align: center;
+      padding: 4px 0;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.2s;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    .card-header {
+      border-bottom: 1px dashed #555;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-header h3 {
+      color: #ff4757;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #111;
+      color: #ff4757;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border: 1px solid #ff4757;
+      border-radius: 3px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .info-group {
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #ddd;
+    }
+
+    .info-group strong {
+      color: #aaa;
+      text-transform: capitalize;
+    }
+
+    .quote {
+      margin-top: 12px;
+      margin-bottom: 10px;
+      font-style: italic;
+      font-size: 0.8rem;
+      background-color: #1a1a1a;
+      padding: 8px;
+      border-left: 3px solid #ff4757;
+      color: #ccc;
+    }
+
+    .no-result {
+      text-align: center;
+      grid-column: 1 / -1;
+      color: #888;
+      font-size: 1.1rem;
+      margin-top: 20px;
+    }
+
+    /* MODAL POPUP */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 999;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #222;
+      border: 2px solid #ff4757;
+      border-radius: 10px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 25px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .modal-header {
+      border-bottom: 2px solid #ff4757;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      color: #ff4757;
+      font-size: 1.4rem;
+    }
+
+    /* LIST KELUARGA */
+    .family-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .family-item {
+      background: #111;
+      border-left: 4px solid #ff4757;
+      border-radius: 4px;
+      padding: 12px 15px;
+    }
+
+    .family-role {
+      color: #ff4757;
+      font-size: 0.85rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .family-detail {
+      color: #ccc;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .family-detail strong {
+      color: #aaa;
+      text-transform: capitalize;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================
+       HALAMAN LOGIN
+       ========================================= -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <h2>RESTRICTED AREA</h2>
+      <p>Silakan masukkan kode sandi angkatan untuk mengakses database.</p>
+      <input type="password" id="passwordInput" placeholder="Masukkan Sandi..." onkeyup="checkEnter(event)">
+      <button onclick="checkPassword()">BUKA ARSIP</button>
+      <p id="errorMessage"></p>
+    </div>
+  </div>
+
+  <!-- =========================================
+       HALAMAN UTAMA (DATABASE)
+       ========================================= -->
+  <div id="mainApp">
+    <header>
+      <h1>MOST WANTED CLASS 2026</h1>
+      <p>Database Perpisahan & Kenangan Angkatan (Klik kartu untuk detail keluarga)</p>
+    </header>
+
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Cari nama teman..." onkeyup="searchPerson()">
+    </div>
+
+    <div class="grid-container" id="cardsGrid"></div>
+  </div>
+
+  <!-- POPUP MODAL UNTUK DATA KELUARGA -->
+  <div class="modal-overlay" id="familyModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="close-btn" onclick="closeModalDirect()">&times;</button>
+      <div class="modal-header">
+        <h2 id="modalTitle">BERKAS KELUARGA</h2>
+        <p id="modalSubtitle" style="color:#aaa; font-size:0.85rem; margin-top:4px;"></p>
+      </div>
+      <div>
+        <h3 style="color:#ddd; font-size:1rem; margin-bottom:10px;">Daftar Anggota Keluarga:</h3>
+        <div class="family-list" id="familyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // SISTEM LOGIN (KATA SANDI)
+    // ==========================================
+    function checkPassword() {
+      // Ambil nilai dari input dan ubah jadi huruf kecil semua agar tidak sensitif besar/kecil huruf
+      const pass = document.getElementById('passwordInput').value.toLowerCase();
+      const errorMessage = document.getElementById('errorMessage');
+
+      // Cek sandi
+      if (pass === "di tolak smanic smanti pun jadi") {
+        document.getElementById('loginScreen').style.display = 'none'; // Sembunyikan layar login
+        document.getElementById('mainApp').style.display = 'block'; // Tampilkan layar utama
+      } else {
+        errorMessage.innerText = "Akses Ditolak! Sandi salah."; // Pesan error
+      }
+    }
+
+    // Biar bisa langsung tekan 'Enter' di keyboard
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        checkPassword();
+      }
+    }
+
+    // ==========================================
+    // DATA SISWA (TANPA PROPERTI FOTO)
+    // ==========================================
+    const studentsData = [
+      {
+        id: 1,
+        nama: "Muhammad Bramantyo",
+        panggilan: "Bram",
+        ttl: "Jakarta, 12 Maret 2008",
+        telepon: "0812-3456-7890",
+        motto: "Jangan lupa tidur, belajar itu nomor dua.",
+        keluarga: [
+          {
+            hubungan: "Ayah",
+            nama: "Ahmad Rahmawati",
+            ttl: "Bandung, 20 Februari 1975",
+            telepon: "0857-0000-1111",
+            alamat: "Jl. Merdeka No. 45, Jakarta Selatan"
+          },
+          {
+            hubungan: "Ibu",
+            nama: "Dewi Lestari",
+            ttl: "17-06-1973",
+            telepon: "+628157977050",
+            alamat: "Jl. Merdeka No. 45, Jakarta Selatan"
+          }
+        ]
+      },
+      {
+        id: 2,
+        nama: "Siti Rahmawati",
+        panggilan: "Siti",
+        ttl: "Bandung, 05 Juli 2008",
+        telepon: "0857-1122-3344",
+        motto: "Tetap tenang walaupun tugas menumpuk.",
+        keluarga: [
+          {
+            hubungan: "Ayah",
+            nama: "Budi Santoso",
+            ttl: "Bandung, 10 Januari 1970",
+            telepon: "0812-9999-8888",
+            alamat: "Jl. Anggrek No. 12, Bandung"
+          }
+        ]
+      }
+    ];
+
+    // Render kartu siswa tanpa foto secara otomatis
+    function renderCards(data) {
+      const grid = document.getElementById('cardsGrid');
+      grid.innerHTML = '';
+
+      if (data.length === 0) {
+        grid.innerHTML = '<p class="no-result">Nama tidak ditemukan...</p>';
+        return;
+      }
+
+      data.forEach(student => {
+        let dynamicDetailsHTML = '';
+        
+        for (const [key, value] of Object.entries(student)) {
+          if (['id', 'nama', 'motto', 'keluarga'].includes(key)) continue;
+          
+          const label = key === 'ttl' ? 'TTL' : key;
+          dynamicDetailsHTML += `<div class="info-group"><strong>${label}:</strong> ${value}</div>`;
+        }
+
+        const cardHTML = `
+          <div class="card" onclick="openFamilyModal(${student.id})">
+            <div class="card-header">
+              <span class="badge">DOSSIER #${student.id}</span>
+              <h3>${student.nama}</h3>
+            </div>
+            ${dynamicDetailsHTML}
+            <div class="quote">"${student.motto || '-'}"</div>
+          </div>
+        `;
+        grid.innerHTML += cardHTML;
+      });
+    }
+
+    // Pencarian live
+    function searchPerson() {
+      const keyword = document.getElementById('searchInput').value.toLowerCase();
+      const filteredData = studentsData.filter(student => 
+        student.nama.toLowerCase().includes(keyword) || 
+        (student.panggilan && student.panggilan.toLowerCase().includes(keyword))
+      );
+      renderCards(filteredData);
+    }
+
+    // Buka Pop-Up Keluarga
+    function openFamilyModal(studentId) {
+      const student = studentsData.find(s => s.id === studentId);
+      if (!student) return;
+
+      document.getElementById('modalTitle').innerText = `DATA KELUARGA - ${student.nama.toUpperCase()}`;
+      document.getElementById('modalSubtitle').innerText = `Arsip Terikat dari Siswa: ${student.nama}`;
+
+      const familyList = document.getElementById('familyList');
+      familyList.innerHTML = '';
+
+      if (!student.keluarga || student.keluarga.length === 0) {
+        familyList.innerHTML = '<p style="color:#888;">Data keluarga tidak tersedia.</p>';
+      } else {
+        student.keluarga.forEach(fam => {
+          let familyDetailsHTML = '';
+          
+          for (const [key, value] of Object.entries(fam)) {
+            if (key === 'hubungan') continue;
+            const label = key === 'ttl' ? 'TTL' : key;
+            familyDetailsHTML += `
+              <div class="family-detail">
+                <strong>${label}:</strong> ${value}
+              </div>
+            `;
+          }
+
+          familyList.innerHTML += `
+            <div class="family-item">
+              <div class="family-role">[ ${fam.hubungan || 'ANGGOTA'} ]</div>
+              ${familyDetailsHTML}
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById('familyModal').classList.add('active');
+    }
+
+    function closeModalDirect() {
+      document.getElementById('familyModal').classList.remove('active');
+    }
+
+    function closeModal(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        closeModalDirect();
+      }
+    }
+
+    // Inisialisasi Tampilan Data (Tersimpan di background)
+    renderCards(studentsData);
+  </script>
+</body>
+</html>
